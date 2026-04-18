@@ -1,0 +1,6 @@
+asgiref==3.11.1
+Django==6.0.4
+mysqlclient==2.2.8
+psycopg2-binary==2.9.11
+PyMySQL==1.1.2
+sqlparse==0.5.5
