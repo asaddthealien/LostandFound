@@ -1,0 +1,30 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block body %}
+<h2>Post an Item</h2>
+
+<form action="{% url 'itempost' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label for="name">Item Name</label><br>
+    <input type="text" id="name" name="name" required><br><br>
+
+    <label for="description">Description</label><br>
+    <textarea id="description" name="description" rows="4" cols="40" required></textarea><br><br>
+
+    <label for="location">Location</label><br>
+    <input type="text" id="location" name="location" required><br><br>
+
+    <label for="status">Post Type</label><br>
+    <select id="status" name="status" required>
+        <option value="" selected disabled>Select type</option>
+        <option value="lost">Lost Item</option>
+        <option value="found">Found Item</option>
+    </select><br><br>
+
+    <label for="image">Item Image</label><br>
+    <input type="file" id="image" name="image" accept="image/*" required><br><br>
+
+    <button type="submit">Submit Post</button>
+</form>
+{% endblock %}

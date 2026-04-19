@@ -1,0 +1,9 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block body %}
+    <h2>Lost&Found</h2>
+    <a href="{% url 'itempost' %}">Create Post</a>
+    <a href="{% url 'listitems' 'FOUND' %}">Claim</a>
+    <a href="{% url 'listitems' 'LOST' %}">Lost Items</a>
+
+{% endblock %}
