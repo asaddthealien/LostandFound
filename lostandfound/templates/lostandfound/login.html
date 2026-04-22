@@ -1,6 +1,10 @@
 {% extends lostandfound/layout.html %}
 
 {% block body %}
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+
     <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
         <input type="text", name="username", placeholder="Username">

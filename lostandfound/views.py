@@ -4,6 +4,7 @@ from django.urls import reverse
 from .models import Item, LostItem, FoundItem, User
 from django.contrib.auth import authenticate, login, logout
 from .forms import Userform
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -51,7 +52,7 @@ def registerview(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('')
+            return redirect("index")
         
     else:
         form = Userform()
@@ -65,6 +66,14 @@ def loginview(request):
         userobj = User.objects.get(User.name == request.POST.get('username'))
         if request.POST.get('password') == userobj.password:
             login(request, userobj)
-            return redirect('')
+            return redirect("index")
         else: 
-                
+            messages.error(request, "username or password not correct")
+
+    return render(request, "lostandfound/login.html")
+
+def logoutview(request):
+    logout(request)
+    return redirect('loginview')
+
+
