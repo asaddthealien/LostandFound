@@ -1,16 +1,25 @@
-{% extends lostandfound/layout.html %}
+{% extends "lostandfound/layout.html" %}
 
 {% block body %}
+    <h2>Login</h2>
+
     {% for message in messages %}
         <p>{{ message }}</p>
     {% endfor %}
 
     <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
-        <input type="text", name="username", placeholder="Username">
-        <input type="password", name="password", placeholder="Password">
-        <input type="submit", value="Login">
+        <p>
+            <label for="username">Username</label><br>
+            <input type="text" id="username" name="username" placeholder="Username" required>
+        </p>
+        <p>
+            <label for="password">Password</label><br>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+        </p>
+        <input type="submit" value="Login">
     </form>
+
     <a href="{% url 'register' %}">Not a User? Register</a>
 
 {% endblock %}

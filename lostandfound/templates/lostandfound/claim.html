@@ -1,0 +1,21 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block body %}
+	<h2>Claim Found Item</h2>
+
+	{% for message in messages %}
+        <p>{{ message }}</p>
+	{% endfor %}
+
+	<form method="post" enctype="multipart/form-data">
+		{% csrf_token %}
+
+		<label for="proof">Proof of Ownership</label><br>
+		<textarea id="proof" name="proof" rows="6" cols="50" placeholder="Describe unique details only the real owner would know (marks, stickers, contents, lock code pattern, etc.)" required></textarea><br><br>
+
+		<label for="image">Supporting Image (Optional)</label><br>
+		<input type="file" id="image" name="image" accept="image/*"><br><br>
+
+		<button type="submit">Submit Claim</button>
+	</form>
+{% endblock %}

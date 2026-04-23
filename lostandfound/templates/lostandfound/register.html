@@ -1,9 +1,12 @@
 {% extends "lostandfound/layout.html" %}
 
 {% block body %}
+    <h2>Register</h2>
+
     <form action="{% url 'register' %}" method="post">
         {% csrf_token %}
         {% if form.errors %}
+            <h3>Please fix the following errors:</h3>
             <ul>
                 {% for field in form %}
                     {% for error in field.errors %}
@@ -19,5 +22,7 @@
         {{ form.as_p }}
         <input type="submit" value="Register">
     </form>
+
+    <p><a href="{% url 'login' %}">Already have an account? Login</a></p>
 
 {% endblock %}

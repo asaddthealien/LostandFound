@@ -125,3 +125,5 @@ STATIC_URL = 'static/'
 #for storing images
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+LOGIN_URL = 'login'

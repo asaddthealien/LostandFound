@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Home</title>
-    </head>
-    <body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lost and Found{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>University Lost and Found</h1>
+        <nav>
+            <a href="{% url 'index' %}">Home</a>
+            <a href="{% url 'itempost' %}">Post Item</a>
+            <a href="{% url 'listitems' 'lost' %}">Lost Items</a>
+            <a href="{% url 'listitems' 'found' %}">Found Items</a>
+            <a href="{% url 'notifications' %}">Notifications</a>
+        </nav>
+        <hr>
+    </header>
+
+    <main>
         {% block body %}
         {% endblock %}
-    </body>
+    </main>
+</body>
 </html>

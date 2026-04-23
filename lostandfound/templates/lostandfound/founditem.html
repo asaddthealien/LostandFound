@@ -1,7 +1,7 @@
 {% extends "lostandfound/layout.html" %}
 
 {% block body %}
-    <h2>Lost Items</h2>
+    <h2>Found Items</h2>
 
     <ul>
         {% for item in items %}
@@ -17,11 +17,13 @@
                 {% else %}
                     <p>No image found.</p>
                 {% endif %}
+
+                <p><a href="{% url 'claim' item.id %}">Claim This Item</a></p>
             </li>
         {% empty %}
-            <li>No lost items available.</li>
+            <li>No found items available.</li>
         {% endfor %}
     </ul>
 
-{% endblock %}
 
+{% endblock %}

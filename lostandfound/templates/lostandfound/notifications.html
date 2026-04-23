@@ -1,0 +1,15 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block body %}
+    <h2>Notifications</h2>
+
+    <ul>
+        {% for notification in notifications %}
+            <li><a href="{% url 'review' notifacation.id %}">{{ notifacation }}</a></li>
+        {% empty %}
+            <li>No notifications available.</li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="{% url 'index' %}">Back to Home</a></p>
+{% endblock %}
