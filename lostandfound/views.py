@@ -70,7 +70,12 @@ def registerview(request):
 
 def loginview(request):
     if request.method == "POST":
-        userobj = User.objects.get(User.name == request.POST.get('username'))
+        try:
+            userobj = User.objects.get(name = request.POST.get('username'))
+        except (User.DoesNotExist, User.MultipleObjectsReturned):
+            messages.error(request, "user not found")
+            return redirect('login')
+        
         if request.POST.get('password') == userobj.password:
             login(request, userobj)
             return redirect("index")
