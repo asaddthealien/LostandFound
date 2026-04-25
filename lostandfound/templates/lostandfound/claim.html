@@ -1,23 +1,21 @@
-{% extends "lostandfound/layout.html" %}create a clone of this app https://www.miniclip.com/games/cricket-league
-i just want it simply just so i can play it with my friends easily and also add a featrure where i can send emojis/sticker like u send in clash royale
-
+{% extends "lostandfound/layout.html" %}
 
 {% block body %}
 	<h2>Claim Found Item</h2>
+	<p class="muted">Provide details that prove the item belongs to you.</p>
 
-	{% for message in messages %}
-        <p>{{ message }}</p>
-	{% endfor %}
-
-	<form method="post" enctype="multipart/form-data">
+	<form action="{% url 'claim' item_id %}" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
 
-		<label for="proof">Proof of Ownership</label><br>
-		<textarea id="proof" name="proof" rows="6" cols="50" placeholder="Describe unique details only the real owner would know (marks, stickers, contents, lock code pattern, etc.)" required></textarea><br><br>
+		<label for="proof">Proof of Ownership</label>
+		<textarea id="proof" name="proof" rows="6" placeholder="Describe details only the actual owner would know." required></textarea>
 
-		<label for="image">Supporting Image (Optional)</label><br>
-		<input type="file" id="image" name="image" accept="image/*"><br><br>
+		<label for="image">Supporting Image (Optional)</label>
+		<input type="file" id="image" name="image" accept="image/*">
 
-		<button type="submit">Submit Claim</button>
+		<div class="actions">
+			<button type="submit">Submit Claim</button>
+			<a class="btn btn-secondary" href="{% url 'listitems' 'found' %}">Back</a>
+		</div>
 	</form>
 {% endblock %}

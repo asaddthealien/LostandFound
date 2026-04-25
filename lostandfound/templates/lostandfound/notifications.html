@@ -2,14 +2,24 @@
 
 {% block body %}
     <h2>Notifications</h2>
+    <p class="muted">Review claim requests and recent updates.</p>
 
-    <ul>
+    <ul class="clean-list">
         {% for notification in notifications %}
-            <li><a href="{% url 'review' notifacation.id %}">{{ notifacation }}</a></li>
+            <li class="item-card">
+                <p><strong>{{ notification.title }}</strong></p>
+                <p>{{ notification.message }}</p>
+                <p>Status: {% if notification.is_read %}Read{% else %}Unread{% endif %}</p>
+                <div class="actions">
+                    <a class="btn" href="{% url 'review' notification.id %}">Open</a>
+                </div>
+            </li>
         {% empty %}
-            <li>No notifications available.</li>
+            <li class="item-card">No notifications available.</li>
         {% endfor %}
     </ul>
 
-    <p><a href="{% url 'index' %}">Back to Home</a></p>
+    <div class="actions">
+        <a class="btn btn-secondary" href="{% url 'index' %}">Back to Home</a>
+    </div>
 {% endblock %}

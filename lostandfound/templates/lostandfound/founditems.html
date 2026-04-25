@@ -3,9 +3,9 @@
 {% block body %}
     <h2>Found Items</h2>
 
-    <ul>
+    <ul class="clean-list">
         {% for item in items %}
-            <li>
+            <li class="item-card">
                 <p><strong>Name:</strong> {{ item.name }}</p>
                 <p><strong>Location:</strong> {{ item.location }}</p>
                 {% if item.description %}
@@ -13,15 +13,17 @@
                 {% endif %}
 
                 {% if item.image %}
-                    <img src="{{ item.image.url }}" alt="{{ item.name }}" width="200">
+                    <img class="media-img" src="{{ item.image.url }}" alt="{{ item.name }}">
                 {% else %}
-                    <p>No image found.</p>
+                    <p class="muted">No image available.</p>
                 {% endif %}
 
-                <p><a href="{% url 'claim' item.id %}">Claim This Item</a></p>
+                <div class="actions">
+                    <a class="btn" href="{% url 'claim' item.id %}">Claim This Item</a>
+                </div>
             </li>
         {% empty %}
-            <li>No found items available.</li>
+            <li class="item-card">No found items available.</li>
         {% endfor %}
     </ul>
 

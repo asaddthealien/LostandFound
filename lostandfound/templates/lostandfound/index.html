@@ -4,23 +4,23 @@
     <h2>Welcome</h2>
 
     {% if user.is_authenticated %}
-        <p>You are logged in.</p>
-        <p>
-            <a href="{% url 'itempost' %}">Create Post</a>
-            <a href="{% url 'listitems' 'found' %}">Claim Found Item</a>
-            <a href="{% url 'listitems' 'lost' %}">View Lost Items</a>
-            <a href="{% url 'logout' %}">Logout</a>
-        </p>
+        <p class="muted">You are logged in. What would you like to do?</p>
+        <div class="actions">
+            <a class="btn" href="{% url 'itempost' %}">Create Post</a>
+            <a class="btn" href="{% url 'listitems' 'found' %}">Claim Found Item</a>
+            <a class="btn btn-secondary" href="{% url 'listitems' 'lost' %}">View Lost Items</a>
+        </div>
     {% else %}
-        <p>
-            <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'register' %}">Register</a>
-        </p>
+        <p class="muted">Please login or create an account to continue.</p>
+        <div class="actions">
+            <a class="btn" href="{% url 'login' %}">Login</a>
+            <a class="btn btn-secondary" href="{% url 'register' %}">Register</a>
+        </div>
     {% endif %}
 
-    <section>
+    <section style="margin-top: 20px;">
         <h3>Notifications</h3>
-        <p>Check the latest claim and item status updates.</p>
-        <a href="{% url 'notifications' %}">Open Notifications</a>
+        <p class="muted">Check the latest claim and item status updates.</p>
+        <a class="btn" href="{% url 'notifications' %}">Open Notifications</a>
     </section>
 {% endblock %}

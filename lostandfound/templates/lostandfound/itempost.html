@@ -2,27 +2,28 @@
 
 {% block body %}
 <h2>Post an Item</h2>
+<p class="muted">Share details clearly so others can identify the item.</p>
 
 <form action="{% url 'itempost' %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <label for="name">Item Name</label><br>
-    <input type="text" id="name" name="name" required><br><br>
+    <label for="name">Item Name</label>
+    <input type="text" id="name" name="name" required>
 
-    <label for="description">Description</label><br>
-    <textarea id="description" name="description" rows="4" cols="40" required></textarea><br><br>
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="4" required></textarea>
 
-    <label for="location">Location</label><br>
-    <input type="text" id="location" name="location" required><br><br>
+    <label for="location">Location</label>
+    <input type="text" id="location" name="location" required>
 
-    <label for="status">Post Type</label><br>
+    <label for="status">Post Type</label>
     <select id="status" name="status" required>
         <option value="" selected disabled>Select type</option>
         <option value="lost">Lost Item</option>
         <option value="found">Found Item</option>
-    </select><br><br>
+    </select>
 
-    <label for="category">Category</label><br>
+    <label for="category">Category</label>
     <select id="category" name="category" required>
         <option value="" selected disabled>Select category</option>
         <option value="id_card">Student/Faculty ID Card</option>
@@ -43,10 +44,10 @@
         <option value="accessories">Accessories (Watch, Glasses, Jewelry)</option>
         <option value="lab_equipment">Lab Equipment</option>
         <option value="other">Other</option>
-    </select><br><br>
+    </select>
 
-    <label for="image">Item Image</label><br>
-    <input type="file" id="image" name="image" accept="image/*" required><br><br>
+    <label for="image">Item Image</label>
+    <input type="file" id="image" name="image" accept="image/*" required>
 
     <button type="submit">Submit Post</button>
 </form>

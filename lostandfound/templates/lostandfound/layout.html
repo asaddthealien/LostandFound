@@ -4,23 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Lost and Found{% endblock %}</title>
+    <style>
+        :root {
+            --bg: #f3f6fb;
+            --panel: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --primary: #0f766e;
+            --primary-hover: #115e59;
+            --border: #dbe3ee;
+            --danger: #b91c1c;
+            --warning-bg: #fff7ed;
+            --warning-border: #fdba74;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+        }
+
+        .site-header {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+
+        .site-title {
+            margin: 0 0 12px;
+            font-size: 1.5rem;
+        }
+
+        .site-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .site-nav a {
+            display: inline-block;
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            background: #f8fafc;
+        }
+
+        .site-nav a:hover {
+            background: #edf3fa;
+        }
+
+        .content-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 14px;
+        }
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin: 8px 0;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn,
+        button,
+        input[type="submit"] {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            background: var(--primary);
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover,
+        button:hover,
+        input[type="submit"]:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: #475569;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        label {
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="file"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.95rem;
+            background: #fff;
+            margin-bottom: 12px;
+        }
+
+        ul.clean-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .item-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: #fcfdff;
+        }
+
+        .media-img {
+            max-width: 100%;
+            width: 260px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .alert {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 760px) {
+            .split {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>University Lost and Found</h1>
-        <nav>
-            <a href="{% url 'index' %}">Home</a>
-            <a href="{% url 'itempost' %}">Post Item</a>
-            <a href="{% url 'listitems' 'lost' %}">Lost Items</a>
-            <a href="{% url 'listitems' 'found' %}">Found Items</a>
-            <a href="{% url 'notifications' %}">Notifications</a>
-        </nav>
-        <hr>
-    </header>
+    <div class="page">
+        <header class="site-header">
+            <h1 class="site-title">University Lost and Found</h1>
+            <nav class="site-nav">
+                <a href="{% url 'index' %}">Home</a>
+                <a href="{% url 'itempost' %}">Post Item</a>
+                <a href="{% url 'listitems' 'lost' %}">Lost Items</a>
+                <a href="{% url 'listitems' 'found' %}">Found Items</a>
+                <a href="{% url 'notifications' %}">Notifications</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% endif %}
+            </nav>
+        </header>
 
-    <main>
-        {% block body %}
-        {% endblock %}
-    </main>
+        <main class="content-card">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% block body %}
+            {% endblock %}
+        </main>
+    </div>
 </body>
 </html>

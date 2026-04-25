@@ -1,0 +1,61 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block body %}
+    <h2>Review Claim</h2>
+
+    {% if claim %}
+        <div class="split">
+            <section class="item-card">
+                <h3>Claim Details</h3>
+                <p><strong>Claim ID:</strong> {{ claim.id }}</p>
+                <p><strong>Requested By:</strong> {{ claim.requestby.username }}</p>
+                <p><strong>Status:</strong> {{ claim.status }}</p>
+                <p><strong>Proof:</strong> {{ claim.proof }}</p>
+
+                {% if claim.image %}
+                    <p><strong>Supporting Image:</strong></p>
+                    <img class="media-img" src="{{ claim.image.url }}" alt="Claim image">
+                {% else %}
+                    <p><strong>Supporting Image:</strong> Not provided.</p>
+                {% endif %}
+            </section>
+
+            <section class="item-card">
+                <h3>Found Item</h3>
+                {% if claim.found_item %}
+                    <p><strong>Name:</strong> {{ claim.found_item.name }}</p>
+                    <p><strong>Location:</strong> {{ claim.found_item.location }}</p>
+                    {% if claim.found_item.description %}
+                        <p><strong>Description:</strong> {{ claim.found_item.description }}</p>
+                    {% endif %}
+
+                    {% if claim.found_item.image %}
+                        <p><strong>Item Image:</strong></p>
+                        <img class="media-img" src="{{ claim.found_item.image.url }}" alt="Found item image">
+                    {% endif %}
+                {% else %}
+                    <p>The found item post is no longer available.</p>
+                {% endif %}
+            </section>
+        </div>
+
+        {% if claim.status == "Pending" %}
+            <form method="post" action="{% url 'review' notification.id %}" style="margin-top: 14px;">
+                {% csrf_token %}
+                <div class="actions">
+                    <button type="submit" name="decision" value="accept">Accept</button>
+                    <button class="btn-danger" type="submit" name="decision" value="reject">Reject</button>
+                </div>
+            </form>
+        {% else %}
+            <p class="muted" style="margin-top: 14px;">This claim has already been reviewed.</p>
+        {% endif %}
+
+    {% else %}
+        <p>Claim information is not available.</p>
+    {% endif %}
+
+    <div class="actions" style="margin-top: 14px;">
+        <a class="btn btn-secondary" href="{% url 'notifications' %}">Back to Notifications</a>
+    </div>
+{% endblock %}

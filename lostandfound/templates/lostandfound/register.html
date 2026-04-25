@@ -2,19 +2,20 @@
 
 {% block body %}
     <h2>Register</h2>
+    <p class="muted">Create your account to start posting and claiming items.</p>
 
     <form action="{% url 'register' %}" method="post">
         {% csrf_token %}
         {% if form.errors %}
-            <h3>Please fix the following errors:</h3>
-            <ul>
+            <h3>Please fix the following errors</h3>
+            <ul class="clean-list">
                 {% for field in form %}
                     {% for error in field.errors %}
-                        <li>{{ error }}</li>
+                        <li class="item-card">{{ error }}</li>
                     {% endfor %}
                 {% endfor %}
                 {% for error in form.non_field_errors %}
-                    <li>{{ error }}</li>
+                    <li class="item-card">{{ error }}</li>
                 {% endfor %}
             </ul>
         {% endif %}
