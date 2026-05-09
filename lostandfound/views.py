@@ -7,47 +7,111 @@ from .forms import Userform
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, connection
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import pytesseract
+import re
+from PIL import Image
+
+# Tesseract path
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# ── OCR: Extract roll number from ID card image ──
+def extract_roll_number(image_file):
+    try:
+        img = Image.open(image_file)
+        text = pytesseract.image_to_string(img)
+        # FAST/NU roll number format: 24k-0606 or 24K-0606
+        match = re.search(r'\b\d{2}[kK]-\d{4}\b', text)
+        if match:
+            return match.group(0).upper()
+    except Exception:
+        pass
+    return None
+
+# ── Email: Notify student when their ID card is found ──
+def notify_id_card_owner(roll_number, item_name, location):
+    # Construct NU email from roll number: 24k-0606 → k240606@nu.edu.pk
+    parts = roll_number.lower().split('-')  # ['24k', '0606']
+    if len(parts) == 2:
+        year_letter = parts[0]   # '24k'
+        digits = parts[1]        # '0606'
+        letter = ''.join(filter(str.isalpha, year_letter))   # 'k'
+        year = ''.join(filter(str.isdigit, year_letter))     # '24'
+        student_email = f"{letter}{year}{digits}@nu.edu.pk"
+
+        try:
+            send_mail(
+                subject='Your ID Card Has Been Found — FAST Lost & Found',
+                message=f"""Dear Student ({roll_number}),
+
+Your student ID card has been found and reported on the FAST Lost & Found system.
+
+Item: {item_name}
+Location: {location}
+
+Please log in to https://lostandfound.example.com and submit a claim to recover it.
+
+— FAST Lost & Found System""",
+                from_email=django_settings.EMAIL_HOST_USER,
+                recipient_list=[student_email],
+                fail_silently=True,
+            )
+            return student_email
+        except Exception:
+            pass
+    return None
 
 # ── AI Matching Algorithm ──
-# Compares a lost item against all found items using:
-# 1. Category match (strong signal)
-# 2. Keyword overlap in name and description
-# 3. Location match bonus
+# Uses TF-IDF vectorization + cosine similarity (real NLP technique)
+# Combined with category match and location bonus for best results
 def get_ai_matches(lost_item, top_n=5):
-    def tokenize(text):
-        if not text:
-            return set()
-        stopwords = {'a', 'an', 'the', 'is', 'it', 'in', 'on', 'at', 'to', 'of', 'and', 'or', 'my', 'i', 'was', 'with', 'for'}
-        return set(w.lower() for w in text.replace(',', ' ').replace('.', ' ').split() if w.lower() not in stopwords)
+    found_items = list(FoundItem.objects.select_related('category', 'postedby').all())
 
-    lost_tokens = tokenize(lost_item.name) | tokenize(lost_item.description)
-    found_items = FoundItem.objects.select_related('category', 'postedby').all()
+    if not found_items:
+        return []
+
+    def item_text(item):
+        parts = [item.name or '', item.description or '', item.location or '']
+        return ' '.join(parts).lower()
+
+    lost_text = item_text(lost_item)
+    found_texts = [item_text(fi) for fi in found_items]
+
+    # TF-IDF vectorization + cosine similarity
+    all_texts = [lost_text] + found_texts
+    vectorizer = TfidfVectorizer(stop_words='english')
+    try:
+        tfidf_matrix = vectorizer.fit_transform(all_texts)
+        similarities = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:]).flatten()
+    except Exception:
+        similarities = np.zeros(len(found_items))
 
     scored = []
-    for fi in found_items:
-        score = 0
+    for i, fi in enumerate(found_items):
+        # Base score from TF-IDF cosine similarity (0 to 70 points)
+        score = int(similarities[i] * 70)
 
-        # Category match — strong signal (40 points)
+        # Category match bonus (25 points)
         if fi.category_id == lost_item.category_id:
-            score += 40
+            score += 25
 
-        # Keyword overlap in name + description (up to 60 points)
-        found_tokens = tokenize(fi.name) | tokenize(fi.description)
-        common = lost_tokens & found_tokens
-        if lost_tokens:
-            overlap = len(common) / len(lost_tokens)
-            score += int(overlap * 60)
-
-        # Location match bonus (10 points)
+        # Location match bonus (5 points)
         if lost_item.location and fi.location:
             if lost_item.location.lower() in fi.location.lower() or fi.location.lower() in lost_item.location.lower():
-                score += 10
+                score += 5
+
+        # Cap at 100
+        score = min(score, 100)
 
         if score > 0:
             scored.append((score, fi))
 
     scored.sort(key=lambda x: x[0], reverse=True)
-    return [(score, fi) for score, fi in scored[:top_n]]
+    return scored[:top_n]
 
 
 # Create your views here.
@@ -108,6 +172,19 @@ def itempost(request):
         # If lost item posted → run AI matching
         if request.POST.get('status').lower() == 'lost':
             return redirect('matches', lost_id=itemobj.id)
+
+        # If found item posted → run OCR to check if it's an ID card
+        if request.POST.get('status').lower() == 'found' and itemobj.image:
+            try:
+                roll_number = extract_roll_number(itemobj.image)
+                if roll_number:
+                    student_email = notify_id_card_owner(roll_number, itemobj.name, itemobj.location)
+                    if student_email:
+                        messages.success(request, f"ID card detected! Roll number {roll_number} - notification sent to {student_email}.")
+                    else:
+                        messages.info(request, f"ID card detected! Roll number: {roll_number}. Could not auto-send email.")
+            except Exception:
+                pass
 
         return HttpResponseRedirect(reverse('listitems', args=(itemobj.status,)))
 
