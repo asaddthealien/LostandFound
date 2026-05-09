@@ -20,16 +20,22 @@ from PIL import Image
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # ── OCR: Extract roll number from ID card image ──
-def extract_roll_number(image_file):
+def extract_roll_number(image_path):
     try:
-        img = Image.open(image_file)
-        text = pytesseract.image_to_string(img)
-        # FAST/NU roll number format: 24k-0606 or 24K-0606
+        from PIL import ImageEnhance, ImageFilter
+        img = Image.open(image_path)
+        w, h = img.size
+        img = img.resize((w*3, h*3), Image.LANCZOS)
+        img = img.convert('L')
+        img = ImageEnhance.Contrast(img).enhance(2.5)
+        img = img.filter(ImageFilter.SHARPEN)
+        text = pytesseract.image_to_string(img, config='--psm 6 --oem 3')
+        print(f"OCR TEXT: {text}")  # debug
         match = re.search(r'\b\d{2}[kK]-\d{4}\b', text)
         if match:
             return match.group(0).upper()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"OCR ERROR: {e}")
     return None
 
 # ── Email: Notify student when their ID card is found ──
@@ -58,7 +64,7 @@ Please log in to https://lostandfound.example.com and submit a claim to recover 
 — FAST Lost & Found System""",
                 from_email=django_settings.EMAIL_HOST_USER,
                 recipient_list=[student_email],
-                fail_silently=True,
+                fail_silently=False,
             )
             return student_email
         except Exception:
@@ -176,15 +182,18 @@ def itempost(request):
         # If found item posted → run OCR to check if it's an ID card
         if request.POST.get('status').lower() == 'found' and itemobj.image:
             try:
-                roll_number = extract_roll_number(itemobj.image)
+                img_path = itemobj.image.path
+                roll_number = extract_roll_number(img_path)
                 if roll_number:
                     student_email = notify_id_card_owner(roll_number, itemobj.name, itemobj.location)
                     if student_email:
                         messages.success(request, f"ID card detected! Roll number {roll_number} - notification sent to {student_email}.")
                     else:
                         messages.info(request, f"ID card detected! Roll number: {roll_number}. Could not auto-send email.")
-            except Exception:
-                pass
+                else:
+                    messages.info(request, "Item posted. No student ID card detected in the image.")
+            except Exception as e:
+                messages.info(request, f"Item posted successfully.")
 
         return HttpResponseRedirect(reverse('listitems', args=(itemobj.status,)))
 
