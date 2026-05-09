@@ -60,16 +60,40 @@
             </div>
         </div>
 
-        <label for="description">Description</label>
-        <textarea id="description" name="description" rows="4" placeholder="Describe the item in detail — color, brand, distinguishing features, etc." required></textarea>
-
         <label for="image">Item Image</label>
-        <div style="background:var(--surface2); border:1px dashed var(--border2); border-radius:10px; padding:20px; text-align:center; margin-bottom:16px; cursor:pointer;" onclick="document.getElementById('image').click()">
-            <div style="font-size:28px; margin-bottom:8px;">📷</div>
-            <div style="font-size:13px; color:var(--muted);">Click to upload an image</div>
-            <div style="font-size:11px; color:var(--muted2); margin-top:4px;">JPG, PNG supported</div>
-            <input type="file" id="image" name="image" accept="image/*" required style="display:none;">
+        <div style="background:var(--surface2); border:2px dashed var(--border2); border-radius:10px; padding:20px; text-align:center; margin-bottom:16px; cursor:pointer; transition: border-color 0.2s;" 
+            onclick="document.getElementById('image').click()"
+            id="upload-area">
+            <div id="upload-placeholder">
+                <div style="font-size:28px; margin-bottom:8px;">📷</div>
+                <div style="font-size:13px; color:var(--muted);">Click to upload an image</div>
+                <div style="font-size:11px; color:var(--muted2); margin-top:4px;">JPG, PNG supported · Required</div>
+            </div>
+            <div id="upload-preview" style="display:none;">
+                <img id="preview-img" style="max-height:160px; border-radius:8px; margin-bottom:8px;">
+                <div id="preview-name" style="font-size:12px; color:var(--primary);"></div>
+                <div style="font-size:11px; color:var(--muted); margin-top:4px;">Click to change image</div>
+            </div>
+            <input type="file" id="image" name="image" accept="image/*" style="display:none;">
         </div>
+
+        <script>
+        document.getElementById('image').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('upload-placeholder').style.display = 'none';
+                    document.getElementById('upload-preview').style.display = 'block';
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('preview-name').textContent = file.name;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+
+        </script>
 
         <div class="actions" style="margin-top:8px;">
             <button type="submit" style="padding:12px 28px; font-size:14px;">Submit Report</button>

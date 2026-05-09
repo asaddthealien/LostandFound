@@ -1,0 +1,81 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block title %}Dashboard — FAST Lost & Found{% endblock %}
+
+{% block body %}
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+    <div>
+        <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Your Overview</div>
+        <h2 style="margin:0;">Dashboard</h2>
+        <p style="margin-top:4px; font-size:13px;">Your activity summary and category breakdown.</p>
+    </div>
+    <a class="btn btn-secondary" href="{% url 'index' %}" style="padding:9px 18px; font-size:13px;">← Back to Home</a>
+</div>
+
+{% if user_stats %}
+<!-- User Stats Row -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:14px; margin-bottom:32px;">
+
+    <div class="item-card" style="text-align:center; padding:20px 12px;">
+        <div style="font-size:28px; margin-bottom:6px;">👤</div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px;">Logged in as</div>
+        <div style="font-size:14px; font-weight:600; color:var(--primary);">{{ user_stats.username }}</div>
+    </div>
+
+    <div class="item-card" style="text-align:center; padding:20px 12px;">
+        <div style="font-size:28px; margin-bottom:6px;">📋</div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px;">Lost Items Posted</div>
+        <div style="font-size:26px; font-weight:700; color:var(--text);">{{ user_stats.lost_posted }}</div>
+    </div>
+
+    <div class="item-card" style="text-align:center; padding:20px 12px;">
+        <div style="font-size:28px; margin-bottom:6px;">📦</div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px;">Found Items Posted</div>
+        <div style="font-size:26px; font-weight:700; color:var(--text);">{{ user_stats.found_posted }}</div>
+    </div>
+
+    <div class="item-card" style="text-align:center; padding:20px 12px;">
+        <div style="font-size:28px; margin-bottom:6px;">🔖</div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px;">Claims Made</div>
+        <div style="font-size:26px; font-weight:700; color:var(--text);">{{ user_stats.claims_made }}</div>
+    </div>
+
+    <div class="item-card" style="text-align:center; padding:20px 12px;">
+        <div style="font-size:28px; margin-bottom:6px;">⚡</div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px;">Total Activity</div>
+        <div style="font-size:26px; font-weight:700; color:var(--primary);">{{ user_stats.total_activity }}</div>
+    </div>
+
+</div>
+{% endif %}
+
+<!-- Category Breakdown -->
+<div>
+    <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px;">Category Breakdown</div>
+
+    <ul class="clean-list">
+        {% for cat in categories %}
+        <li class="item-card" style="display:flex; align-items:center; gap:16px;">
+            <div style="width:42px; height:42px; border-radius:12px; background:var(--primary-dim); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">🏷️</div>
+            <div style="flex:1;">
+                <div style="font-size:14px; font-weight:500; color:var(--text); margin-bottom:4px;">{{ cat.0 }}</div>
+                <div style="font-size:12px; color:var(--muted);">
+                    <span style="color:var(--primary);">{{ cat.1 }} lost</span>
+                    &nbsp;·&nbsp;
+                    <span style="color:var(--text);">{{ cat.2 }} found</span>
+                </div>
+            </div>
+            <div style="font-size:20px; font-weight:700; color:var(--text);">{{ cat.1|add:cat.2 }}</div>
+        </li>
+        {% empty %}
+        <li style="text-align:center; padding:48px 20px; color:var(--muted);">
+            <div style="font-size:40px; margin-bottom:12px;">📊</div>
+            <div style="font-size:15px; color:var(--text); margin-bottom:6px;">No data yet</div>
+            <p style="font-size:13px;">Post some items to see category stats here.</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block title %}Edit Item — FAST Lost & Found{% endblock %}
+
+{% block body %}
+
+<div style="max-width:680px; margin:0 auto;">
+    <div style="margin-bottom:28px;">
+        <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Update Report</div>
+        <h2 style="margin:0 0 8px;">Edit Item</h2>
+        <p style="font-size:13px;">Update the details for <strong style="color:var(--text);">{{ item.name }}</strong>.</p>
+    </div>
+
+    <form action="{% url 'edititem' status item.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="split" style="margin-bottom:0;">
+            <div>
+                <label for="name">Item Name</label>
+                <input type="text" id="name" name="name" value="{{ item.name }}" required>
+            </div>
+            <div>
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" value="{{ item.location }}" required>
+            </div>
+        </div>
+
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+            <option value="" disabled>Select category</option>
+            <option value="id_card" {% if item.category.name == 'id_card' %}selected{% endif %}>Student / Faculty ID Card</option>
+            <option value="wallet" {% if item.category.name == 'wallet' %}selected{% endif %}>Wallet / Purse</option>
+            <option value="keys" {% if item.category.name == 'keys' %}selected{% endif %}>Keys</option>
+            <option value="mobile_phone" {% if item.category.name == 'mobile_phone' %}selected{% endif %}>Mobile Phone</option>
+            <option value="laptop_tablet" {% if item.category.name == 'laptop_tablet' %}selected{% endif %}>Laptop / Tablet</option>
+            <option value="charger_cables" {% if item.category.name == 'charger_cables' %}selected{% endif %}>Chargers / Cables</option>
+            <option value="headphones" {% if item.category.name == 'headphones' %}selected{% endif %}>Headphones / Earbuds</option>
+            <option value="calculator" {% if item.category.name == 'calculator' %}selected{% endif %}>Calculator</option>
+            <option value="books_notes" {% if item.category.name == 'books_notes' %}selected{% endif %}>Books / Notes</option>
+            <option value="bag_backpack" {% if item.category.name == 'bag_backpack' %}selected{% endif %}>Bag / Backpack</option>
+            <option value="water_bottle" {% if item.category.name == 'water_bottle' %}selected{% endif %}>Water Bottle / Lunch Box</option>
+            <option value="clothing" {% if item.category.name == 'clothing' %}selected{% endif %}>Clothing</option>
+            <option value="sports_items" {% if item.category.name == 'sports_items' %}selected{% endif %}>Sports Items</option>
+            <option value="usb_storage" {% if item.category.name == 'usb_storage' %}selected{% endif %}>USB Drive / Storage Device</option>
+            <option value="documents" {% if item.category.name == 'documents' %}selected{% endif %}>Documents / Certificates</option>
+            <option value="accessories" {% if item.category.name == 'accessories' %}selected{% endif %}>Accessories</option>
+            <option value="lab_equipment" {% if item.category.name == 'lab_equipment' %}selected{% endif %}>Lab Equipment</option>
+            <option value="other" {% if item.category.name == 'other' %}selected{% endif %}>Other</option>
+        </select>
+
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4">{{ item.description }}</textarea>
+
+        <label>Current Image</label>
+        {% if item.image %}
+            <div style="margin-bottom:12px;">
+                <img src="{{ item.image.url }}" style="width:160px; height:120px; object-fit:cover; border-radius:10px; border:1px solid var(--border);">
+            </div>
+        {% else %}
+            <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">No image uploaded.</p>
+        {% endif %}
+
+        <label for="image">Replace Image <span style="color:var(--muted); font-weight:400; font-size:11px;">(Optional)</span></label>
+        <input type="file" id="image" name="image" accept="image/*">
+
+        <div class="actions" style="margin-top:8px;">
+            <button type="submit" style="padding:12px 28px; font-size:14px;">Save Changes</button>
+            <a class="btn btn-secondary" href="{% url 'myitems' %}" style="padding:12px 20px; font-size:14px;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

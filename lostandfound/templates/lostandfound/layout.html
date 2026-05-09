@@ -577,6 +577,8 @@
             <li><a href="{% url 'listitems' 'lost' %}">Lost Items</a></li>
             <li><a href="{% url 'listitems' 'found' %}">Found Items</a></li>
             <li><a href="{% url 'notifications' %}">Notifications</a></li>
+            <li><a href="{% url 'myitems' %}">My Items</a></li>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
             {% if user.is_authenticated %}
                 <li><a href="{% url 'logout' %}" class="nav-logout">Logout</a></li>
             {% else %}

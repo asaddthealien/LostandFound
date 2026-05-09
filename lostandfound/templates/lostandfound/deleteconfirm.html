@@ -1,0 +1,32 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block title %}Delete Item — FAST Lost & Found{% endblock %}
+
+{% block body %}
+
+<div style="max-width:500px; margin:0 auto; text-align:center; padding:20px 0;">
+    <div style="font-size:52px; margin-bottom:16px;">🗑️</div>
+    <h2 style="margin-bottom:8px;">Delete This Item?</h2>
+    <p style="font-size:14px; margin-bottom:6px;">You are about to permanently delete:</p>
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin:20px 0; text-align:left;">
+        <div style="font-size:15px; font-weight:600; color:var(--text); margin-bottom:6px;">{{ item.name }}</div>
+        <div style="font-size:13px; color:var(--muted);">📍 {{ item.location }}</div>
+        {% if item.description %}
+            <div style="font-size:13px; color:var(--muted); margin-top:4px;">{{ item.description }}</div>
+        {% endif %}
+    </div>
+
+    <div class="notice-bar" style="text-align:left; margin-bottom:24px;">
+        ⚠️ &nbsp;This action cannot be undone. Any active claims on this item will also be affected.
+    </div>
+
+    <form method="post" action="{% url 'deleteitem' status item.id %}">
+        {% csrf_token %}
+        <div class="actions" style="justify-content:center;">
+            <button type="submit" class="btn btn-danger" style="padding:12px 28px; font-size:14px; background:var(--danger); color:#fff; border:none;">Yes, Delete It</button>
+            <a class="btn btn-secondary" href="{% url 'myitems' %}" style="padding:12px 20px; font-size:14px;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

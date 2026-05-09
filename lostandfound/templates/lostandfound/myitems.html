@@ -1,0 +1,76 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block title %}My Items — FAST Lost & Found{% endblock %}
+
+{% block body %}
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+    <div>
+        <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Your Posts</div>
+        <h2 style="margin:0;">My Items</h2>
+        <p style="margin-top:4px; font-size:13px;">All items you have posted — edit or delete them here.</p>
+    </div>
+    <a class="btn" href="{% url 'itempost' %}" style="padding:10px 20px; font-size:13px;">+ Post New Item</a>
+</div>
+
+<!-- Lost Items -->
+<div class="section-label" style="margin-bottom:14px;">Lost Items I Posted</div>
+<ul class="clean-list" style="margin-bottom:32px;">
+    {% for item in lost_items %}
+        <li class="item-card" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            {% if item.image %}
+                <img src="{{ item.image.url }}" style="width:80px; height:80px; object-fit:cover; border-radius:10px; border:1px solid var(--border); flex-shrink:0;">
+            {% else %}
+                <div style="width:80px; height:80px; border-radius:10px; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0;">📦</div>
+            {% endif %}
+            <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                    <span class="badge badge-lost">Lost</span>
+                    {% if item.category %}<span style="font-size:11px; color:var(--muted);">{{ item.category }}</span>{% endif %}
+                </div>
+                <div style="font-size:14px; font-weight:500; color:var(--text); margin-bottom:3px;">{{ item.name }}</div>
+                <div style="font-size:12px; color:var(--muted);">📍 {{ item.location }}</div>
+            </div>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+                <a class="btn btn-secondary" href="{% url 'edititem' 'lost' item.id %}" style="padding:7px 14px; font-size:12px;">✏️ Edit</a>
+                <a class="btn btn-danger" href="{% url 'deleteitem' 'lost' item.id %}" style="padding:7px 14px; font-size:12px;">🗑 Delete</a>
+            </div>
+        </li>
+    {% empty %}
+        <li style="text-align:center; padding:28px; color:var(--muted); background:var(--surface2); border-radius:12px; border:1px solid var(--border);">
+            You haven't posted any lost items yet.
+        </li>
+    {% endfor %}
+</ul>
+
+<!-- Found Items -->
+<div class="section-label" style="margin-bottom:14px;">Found Items I Posted</div>
+<ul class="clean-list">
+    {% for item in found_items %}
+        <li class="item-card" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            {% if item.image %}
+                <img src="{{ item.image.url }}" style="width:80px; height:80px; object-fit:cover; border-radius:10px; border:1px solid var(--border); flex-shrink:0;">
+            {% else %}
+                <div style="width:80px; height:80px; border-radius:10px; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0;">📦</div>
+            {% endif %}
+            <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                    <span class="badge badge-found">Found</span>
+                    {% if item.category %}<span style="font-size:11px; color:var(--muted);">{{ item.category }}</span>{% endif %}
+                </div>
+                <div style="font-size:14px; font-weight:500; color:var(--text); margin-bottom:3px;">{{ item.name }}</div>
+                <div style="font-size:12px; color:var(--muted);">📍 {{ item.location }}</div>
+            </div>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+                <a class="btn btn-secondary" href="{% url 'edititem' 'found' item.id %}" style="padding:7px 14px; font-size:12px;">✏️ Edit</a>
+                <a class="btn btn-danger" href="{% url 'deleteitem' 'found' item.id %}" style="padding:7px 14px; font-size:12px;">🗑 Delete</a>
+            </div>
+        </li>
+    {% empty %}
+        <li style="text-align:center; padding:28px; color:var(--muted); background:var(--surface2); border-radius:12px; border:1px solid var(--border);">
+            You haven't posted any found items yet.
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

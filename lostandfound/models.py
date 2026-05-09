@@ -9,7 +9,7 @@ class Item(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=100)
     location = models.CharField(max_length=50)
-    image = models.ImageField(upload_to="media/")
+    image = models.ImageField(upload_to="media/", blank=True, null=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name="%(class)s")
 
     class Meta:

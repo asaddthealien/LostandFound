@@ -11,4 +11,9 @@ urlpatterns = [
     path("login", views.loginview, name="login"),
     path("register", views.registerview, name="register"),
     path("logout", views.logoutview, name="logout"),
+    path("myitems", views.myitems, name="myitems"),
+    path("edititem/<str:status>/<int:item_id>", views.edititem, name="edititem"),
+    path("deleteitem/<str:status>/<int:item_id>", views.deleteitem, name="deleteitem"),
+    path("dashboard", views.dashboard, name="dashboard"),
+    path("matches/<int:lost_id>", views.matches, name="matches")
 ]
