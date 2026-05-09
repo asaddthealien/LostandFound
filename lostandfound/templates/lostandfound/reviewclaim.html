@@ -1,61 +1,108 @@
 {% extends "lostandfound/layout.html" %}
 
+{% block title %}Review Claim — FAST Lost & Found{% endblock %}
+
 {% block body %}
-    <h2>Review Claim</h2>
 
-    {% if claim %}
-        <div class="split">
-            <section class="item-card">
-                <h3>Claim Details</h3>
-                <p><strong>Claim ID:</strong> {{ claim.id }}</p>
-                <p><strong>Requested By:</strong> {{ claim.requestby.username }}</p>
-                <p><strong>Status:</strong> {{ claim.status }}</p>
-                <p><strong>Proof:</strong> {{ claim.proof }}</p>
+<div style="margin-bottom:24px;">
+    <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Claim Review</div>
+    <h2 style="margin:0 0 6px;">Review Ownership Claim</h2>
+    <p style="font-size:13px;">Check the claim details and decide whether to accept or reject it.</p>
+</div>
 
-                {% if claim.image %}
-                    <p><strong>Supporting Image:</strong></p>
-                    <img class="media-img" src="{{ claim.image.url }}" alt="Claim image">
-                {% else %}
-                    <p><strong>Supporting Image:</strong> Not provided.</p>
-                {% endif %}
-            </section>
+{% if claim %}
 
-            <section class="item-card">
-                <h3>Found Item</h3>
-                {% if claim.found_item %}
-                    <p><strong>Name:</strong> {{ claim.found_item.name }}</p>
-                    <p><strong>Location:</strong> {{ claim.found_item.location }}</p>
-                    {% if claim.found_item.description %}
-                        <p><strong>Description:</strong> {{ claim.found_item.description }}</p>
-                    {% endif %}
+    <div class="split" style="margin-bottom:20px;">
 
-                    {% if claim.found_item.image %}
-                        <p><strong>Item Image:</strong></p>
-                        <img class="media-img" src="{{ claim.found_item.image.url }}" alt="Found item image">
-                    {% endif %}
-                {% else %}
-                    <p>The found item post is no longer available.</p>
-                {% endif %}
-            </section>
+        <!-- Claim Details -->
+        <div class="item-card">
+            <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Claim Details</div>
+
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                    <span style="font-size:12px; color:var(--muted);">Claim ID</span>
+                    <span style="font-size:13px; color:var(--text); font-weight:500;">#{{ claim.id }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                    <span style="font-size:12px; color:var(--muted);">Requested By</span>
+                    <span style="font-size:13px; color:var(--text); font-weight:500;">{{ claim.requestby.username }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                    <span style="font-size:12px; color:var(--muted);">Status</span>
+                    <span class="badge {% if claim.status == 'Pending' %}badge-pending{% elif claim.status == 'Accepted' %}badge-found{% else %}badge-lost{% endif %}">{{ claim.status }}</span>
+                </div>
+            </div>
+
+            <div style="font-size:12px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Proof of Ownership</div>
+            <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; font-size:13px; color:var(--text); line-height:1.7; margin-bottom:14px;">{{ claim.proof }}</div>
+
+            {% if claim.image %}
+                <div style="font-size:12px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Supporting Image</div>
+                <img class="media-img" src="{{ claim.image.url }}" alt="Claim image" style="width:100%; border-radius:10px; max-height:200px; object-fit:cover;">
+            {% else %}
+                <div style="font-size:13px; color:var(--muted); font-style:italic;">No supporting image provided.</div>
+            {% endif %}
         </div>
 
-        {% if claim.status == "Pending" %}
-            <form method="post" action="{% url 'review' notification.id %}" style="margin-top: 14px;">
+        <!-- Found Item Details -->
+        <div class="item-card">
+            <div style="font-size:11px; color:var(--success); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Found Item</div>
+
+            {% if claim.found_item %}
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                        <span style="font-size:12px; color:var(--muted);">Name</span>
+                        <span style="font-size:13px; color:var(--text); font-weight:500;">{{ claim.found_item.name }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                        <span style="font-size:12px; color:var(--muted);">Location Found</span>
+                        <span style="font-size:13px; color:var(--text);">{{ claim.found_item.location }}</span>
+                    </div>
+                </div>
+
+                {% if claim.found_item.description %}
+                    <div style="font-size:12px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Description</div>
+                    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; font-size:13px; color:var(--text); line-height:1.7; margin-bottom:14px;">{{ claim.found_item.description }}</div>
+                {% endif %}
+
+                {% if claim.found_item.image %}
+                    <div style="font-size:12px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Item Image</div>
+                    <img class="media-img" src="{{ claim.found_item.image.url }}" alt="Found item" style="width:100%; border-radius:10px; max-height:200px; object-fit:cover;">
+                {% endif %}
+            {% else %}
+                <p style="color:var(--muted); font-size:13px;">The found item post is no longer available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if claim.status == "Pending" %}
+        <div class="item-card" style="background:var(--primary-dim); border-color:var(--border2);">
+            <div style="font-size:13px; font-weight:500; color:var(--text); margin-bottom:6px;">Make a Decision</div>
+            <p style="font-size:13px; margin-bottom:16px;">Review the claim details above carefully before accepting or rejecting.</p>
+            <form method="post" action="{% url 'review' notification.id %}">
                 {% csrf_token %}
-                <div class="actions">
-                    <button type="submit" name="decision" value="accept">Accept</button>
-                    <button class="btn-danger" type="submit" name="decision" value="reject">Reject</button>
+                <div class="actions" style="margin-top:0;">
+                    <button type="submit" name="decision" value="accept" style="background:linear-gradient(135deg,#059669,#34d399); padding:11px 26px;">✓ Accept Claim</button>
+                    <button class="btn btn-danger" type="submit" name="decision" value="reject" style="padding:11px 26px;">✗ Reject Claim</button>
                 </div>
             </form>
-        {% else %}
-            <p class="muted" style="margin-top: 14px;">This claim has already been reviewed.</p>
-        {% endif %}
-
+        </div>
     {% else %}
-        <p>Claim information is not available.</p>
+        <div class="notice-bar">
+            This claim has already been reviewed and marked as <strong>{{ claim.status }}</strong>.
+        </div>
     {% endif %}
 
-    <div class="actions" style="margin-top: 14px;">
-        <a class="btn btn-secondary" href="{% url 'notifications' %}">Back to Notifications</a>
+{% else %}
+    <div style="text-align:center; padding:48px 20px; color:var(--muted);">
+        <div style="font-size:40px; margin-bottom:12px;">❓</div>
+        <div style="font-size:15px; color:var(--text); margin-bottom:6px;">Claim not found</div>
+        <p style="font-size:13px;">This claim may have been removed or doesn't exist.</p>
     </div>
+{% endif %}
+
+<div class="actions" style="margin-top:20px;">
+    <a class="btn btn-secondary" href="{% url 'notifications' %}" style="padding:10px 20px; font-size:13px;">← Back to Notifications</a>
+</div>
+
 {% endblock %}

@@ -1,54 +1,81 @@
 {% extends "lostandfound/layout.html" %}
 
+{% block title %}Post Item — FAST Lost & Found{% endblock %}
+
 {% block body %}
-<h2>Post an Item</h2>
-<p class="muted">Share details clearly so others can identify the item.</p>
 
-<form action="{% url 'itempost' %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+<div style="max-width:680px; margin:0 auto;">
+    <div style="margin-bottom:28px;">
+        <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">New Report</div>
+        <h2 style="margin:0 0 8px;">Post an Item</h2>
+        <p style="font-size:13px;">Fill in the details clearly so others can identify the item.</p>
+    </div>
 
-    <label for="name">Item Name</label>
-    <input type="text" id="name" name="name" required>
+    <form action="{% url 'itempost' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-    <label for="description">Description</label>
-    <textarea id="description" name="description" rows="4" required></textarea>
+        <div class="split" style="margin-bottom:0;">
+            <div>
+                <label for="name">Item Name</label>
+                <input type="text" id="name" name="name" placeholder="e.g. Blue Backpack" required>
+            </div>
+            <div>
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" placeholder="e.g. CS Lab, Block C" required>
+            </div>
+        </div>
 
-    <label for="location">Location</label>
-    <input type="text" id="location" name="location" required>
+        <div class="split" style="margin-bottom:0;">
+            <div>
+                <label for="status">Report Type</label>
+                <select id="status" name="status" required>
+                    <option value="" selected disabled>Select type</option>
+                    <option value="lost">I Lost This Item</option>
+                    <option value="found">I Found This Item</option>
+                </select>
+            </div>
+            <div>
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="" selected disabled>Select category</option>
+                    <option value="id_card">Student / Faculty ID Card</option>
+                    <option value="wallet">Wallet / Purse</option>
+                    <option value="keys">Keys</option>
+                    <option value="mobile_phone">Mobile Phone</option>
+                    <option value="laptop_tablet">Laptop / Tablet</option>
+                    <option value="charger_cables">Chargers / Cables</option>
+                    <option value="headphones">Headphones / Earbuds</option>
+                    <option value="calculator">Calculator</option>
+                    <option value="books_notes">Books / Notes</option>
+                    <option value="bag_backpack">Bag / Backpack</option>
+                    <option value="water_bottle">Water Bottle / Lunch Box</option>
+                    <option value="clothing">Clothing (Jacket, Hoodie, etc.)</option>
+                    <option value="sports_items">Sports Items</option>
+                    <option value="usb_storage">USB Drive / Storage Device</option>
+                    <option value="documents">Documents / Certificates</option>
+                    <option value="accessories">Accessories (Watch, Glasses, Jewelry)</option>
+                    <option value="lab_equipment">Lab Equipment</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
 
-    <label for="status">Post Type</label>
-    <select id="status" name="status" required>
-        <option value="" selected disabled>Select type</option>
-        <option value="lost">Lost Item</option>
-        <option value="found">Found Item</option>
-    </select>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4" placeholder="Describe the item in detail — color, brand, distinguishing features, etc." required></textarea>
 
-    <label for="category">Category</label>
-    <select id="category" name="category" required>
-        <option value="" selected disabled>Select category</option>
-        <option value="id_card">Student/Faculty ID Card</option>
-        <option value="wallet">Wallet / Purse</option>
-        <option value="keys">Keys</option>
-        <option value="mobile_phone">Mobile Phone</option>
-        <option value="laptop_tablet">Laptop / Tablet</option>
-        <option value="charger_cables">Chargers / Cables</option>
-        <option value="headphones">Headphones / Earbuds</option>
-        <option value="calculator">Calculator</option>
-        <option value="books_notes">Books / Notes</option>
-        <option value="bag_backpack">Bag / Backpack</option>
-        <option value="water_bottle">Water Bottle / Lunch Box</option>
-        <option value="clothing">Clothing (Jacket, Hoodie, etc.)</option>
-        <option value="sports_items">Sports Items</option>
-        <option value="usb_storage">USB Drive / Storage Device</option>
-        <option value="documents">Documents / Certificates</option>
-        <option value="accessories">Accessories (Watch, Glasses, Jewelry)</option>
-        <option value="lab_equipment">Lab Equipment</option>
-        <option value="other">Other</option>
-    </select>
+        <label for="image">Item Image</label>
+        <div style="background:var(--surface2); border:1px dashed var(--border2); border-radius:10px; padding:20px; text-align:center; margin-bottom:16px; cursor:pointer;" onclick="document.getElementById('image').click()">
+            <div style="font-size:28px; margin-bottom:8px;">📷</div>
+            <div style="font-size:13px; color:var(--muted);">Click to upload an image</div>
+            <div style="font-size:11px; color:var(--muted2); margin-top:4px;">JPG, PNG supported</div>
+            <input type="file" id="image" name="image" accept="image/*" required style="display:none;">
+        </div>
 
-    <label for="image">Item Image</label>
-    <input type="file" id="image" name="image" accept="image/*" required>
+        <div class="actions" style="margin-top:8px;">
+            <button type="submit" style="padding:12px 28px; font-size:14px;">Submit Report</button>
+            <a class="btn btn-secondary" href="{% url 'index' %}" style="padding:12px 20px; font-size:14px;">Cancel</a>
+        </div>
+    </form>
+</div>
 
-    <button type="submit">Submit Post</button>
-</form>
 {% endblock %}

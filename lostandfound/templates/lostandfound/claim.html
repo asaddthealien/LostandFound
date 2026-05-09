@@ -1,21 +1,39 @@
 {% extends "lostandfound/layout.html" %}
 
+{% block title %}Claim Item — FAST Lost & Found{% endblock %}
+
 {% block body %}
-	<h2>Claim Found Item</h2>
-	<p class="muted">Provide details that prove the item belongs to you.</p>
 
-	<form action="{% url 'claim' item_id %}" method="post" enctype="multipart/form-data">
-		{% csrf_token %}
+<div style="max-width:620px; margin:0 auto;">
+    <div style="margin-bottom:28px;">
+        <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Ownership Claim</div>
+        <h2 style="margin:0 0 8px;">Claim Found Item</h2>
+        <p style="font-size:13px; line-height:1.7;">Provide details that prove this item belongs to you. Be as specific as possible — only the real owner would know these details.</p>
+    </div>
 
-		<label for="proof">Proof of Ownership</label>
-		<textarea id="proof" name="proof" rows="6" placeholder="Describe details only the actual owner would know." required></textarea>
+    <div class="notice-bar" style="margin-bottom:24px;">
+        ⚠️ &nbsp;Your claim will be reviewed by the person who found the item. False claims may result in account action.
+    </div>
 
-		<label for="image">Supporting Image (Optional)</label>
-		<input type="file" id="image" name="image" accept="image/*">
+    <form action="{% url 'claim' item_id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-		<div class="actions">
-			<button type="submit">Submit Claim</button>
-			<a class="btn btn-secondary" href="{% url 'listitems' 'found' %}">Back</a>
-		</div>
-	</form>
+        <label for="proof">Proof of Ownership</label>
+        <textarea id="proof" name="proof" rows="6" placeholder="Describe details only the actual owner would know — e.g. what's inside, any scratches, stickers, personalization, the exact color/model, etc." required></textarea>
+
+        <label for="image">Supporting Image <span style="color:var(--muted); font-weight:400; text-transform:none; font-size:11px;">(Optional)</span></label>
+        <div style="background:var(--surface2); border:1px dashed var(--border2); border-radius:10px; padding:20px; text-align:center; margin-bottom:16px; cursor:pointer;" onclick="document.getElementById('image').click()">
+            <div style="font-size:28px; margin-bottom:8px;">🖼️</div>
+            <div style="font-size:13px; color:var(--muted);">Upload a photo as proof (optional)</div>
+            <div style="font-size:11px; color:var(--muted2); margin-top:4px;">A receipt, photo with the item, etc.</div>
+            <input type="file" id="image" name="image" accept="image/*" style="display:none;">
+        </div>
+
+        <div class="actions">
+            <button type="submit" style="padding:12px 28px; font-size:14px;">Submit Claim</button>
+            <a class="btn btn-secondary" href="{% url 'listitems' 'found' %}" style="padding:12px 20px; font-size:14px;">Back</a>
+        </div>
+    </form>
+</div>
+
 {% endblock %}

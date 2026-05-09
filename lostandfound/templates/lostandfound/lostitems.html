@@ -1,27 +1,53 @@
 {% extends "lostandfound/layout.html" %}
 
+{% block title %}Lost Items — FAST Lost & Found{% endblock %}
+
 {% block body %}
-    <h2>Lost Items</h2>
 
-    <ul class="clean-list">
-        {% for item in items %}
-            <li class="item-card">
-                <p><strong>Name:</strong> {{ item.name }}</p>
-                <p><strong>Location:</strong> {{ item.location }}</p>
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+    <div>
+        <div style="font-size:11px; color:var(--danger); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Campus Reports</div>
+        <h2 style="margin:0;">Lost Items</h2>
+        <p style="margin-top:4px; font-size:13px;">Items reported lost by FAST students and faculty.</p>
+    </div>
+    <a class="btn" href="{% url 'itempost' %}" style="padding:10px 20px; font-size:13px;">+ Post Lost Item</a>
+</div>
+
+<ul class="clean-list">
+    {% for item in items %}
+        <li class="item-card" style="display:grid; grid-template-columns:{% if item.image %}180px 1fr{% else %}1fr{% endif %}; gap:20px; align-items:start;">
+
+            {% if item.image %}
+                <img class="media-img" src="{{ item.image.url }}" alt="{{ item.name }}" style="width:100%; height:160px; object-fit:cover; border-radius:10px;">
+            {% endif %}
+
+            <div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+                    <span class="badge badge-lost">Lost</span>
+                    {% if item.category %}
+                        <span style="font-size:11px; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:2px 10px; border-radius:20px;">{{ item.get_category_display }}</span>
+                    {% endif %}
+                </div>
+                <h3 style="margin-bottom:8px; font-size:1rem;">{{ item.name }}</h3>
                 {% if item.description %}
-                    <p><strong>Description:</strong> {{ item.description }}</p>
+                    <p style="font-size:13px; margin-bottom:10px; line-height:1.7;">{{ item.description }}</p>
                 {% endif %}
-
-                {% if item.image %}
-                    <img class="media-img" src="{{ item.image.url }}" alt="{{ item.name }}">
-                {% else %}
-                    <p class="muted">No image available.</p>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li class="item-card">No lost items available.</li>
-        {% endfor %}
-    </ul>
+                <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                    <span style="font-size:12px; color:var(--muted);">📍 {{ item.location }}</span>
+                    {% if item.posted_by %}
+                        <span style="font-size:12px; color:var(--muted);">👤 {{ item.posted_by.username }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </li>
+    {% empty %}
+        <li style="text-align:center; padding:48px 20px; color:var(--muted);">
+            <div style="font-size:40px; margin-bottom:12px;">🔍</div>
+            <div style="font-size:15px; color:var(--text); margin-bottom:6px;">No lost items reported yet</div>
+            <p style="font-size:13px;">Be the first to report a lost item on campus.</p>
+            <a class="btn" href="{% url 'itempost' %}" style="margin-top:16px; padding:10px 22px; display:inline-flex;">Post an Item</a>
+        </li>
+    {% endfor %}
+</ul>
 
 {% endblock %}
-

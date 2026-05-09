@@ -1,26 +1,78 @@
 {% extends "lostandfound/layout.html" %}
 
+{% block title %}Home — FAST Lost & Found{% endblock %}
+
 {% block body %}
-    <h2>Welcome</h2>
 
-    {% if user.is_authenticated %}
-        <p class="muted">You are logged in. What would you like to do?</p>
-        <div class="actions">
-            <a class="btn" href="{% url 'itempost' %}">Create Post</a>
-            <a class="btn" href="{% url 'listitems' 'found' %}">Claim Found Item</a>
-            <a class="btn btn-secondary" href="{% url 'listitems' 'lost' %}">View Lost Items</a>
-        </div>
-    {% else %}
-        <p class="muted">Please login or create an account to continue.</p>
-        <div class="actions">
-            <a class="btn" href="{% url 'login' %}">Login</a>
-            <a class="btn btn-secondary" href="{% url 'register' %}">Register</a>
-        </div>
-    {% endif %}
+{% if user.is_authenticated %}
+    <!-- Hero for logged in users -->
+    <div style="padding:8px 0 28px;">
+        <div style="font-size:12px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">FAST Campus Portal</div>
+        <h1 style="font-size:2rem; margin-bottom:10px;">Welcome back, <span style="color:var(--primary);">{{ user.username }}</span></h1>
+        <p style="max-width:500px; margin-bottom:28px;">What would you like to do today? Post a report, browse items, or check your notifications.</p>
 
-    <section style="margin-top: 20px;">
-        <h3>Notifications</h3>
-        <p class="muted">Check the latest claim and item status updates.</p>
-        <a class="btn" href="{% url 'notifications' %}">Open Notifications</a>
-    </section>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn" href="{% url 'itempost' %}" style="padding:12px 24px; font-size:14px;">+ Post an Item</a>
+            <a class="btn btn-secondary" href="{% url 'listitems' 'found' %}" style="padding:12px 24px; font-size:14px;">Browse Found Items</a>
+            <a class="btn btn-secondary" href="{% url 'listitems' 'lost' %}" style="padding:12px 24px; font-size:14px;">Browse Lost Items</a>
+        </div>
+    </div>
+
+    <div style="height:1px; background:var(--border); margin:8px 0 28px;"></div>
+
+    <!-- Quick stats -->
+    <div class="section-label">Overview</div>
+    <div class="split" style="margin-bottom:28px;">
+        <div class="stat-card">
+            <div class="stat-number">📦</div>
+            <div class="stat-label" style="margin-top:6px;">Post a new lost or found item to help others on campus</div>
+            <a class="btn" href="{% url 'itempost' %}" style="margin-top:14px; padding:9px 18px; font-size:13px;">Post Item</a>
+        </div>
+        <div class="stat-card" style="background:rgba(52,211,153,0.06); border-color:rgba(52,211,153,0.15);">
+            <div class="stat-number" style="color:var(--success);">🔔</div>
+            <div class="stat-label" style="margin-top:6px;">Check your claim updates and recent activity notifications</div>
+            <a class="btn" href="{% url 'notifications' %}" style="margin-top:14px; padding:9px 18px; font-size:13px; background:linear-gradient(135deg,#059669,#34d399);">Notifications</a>
+        </div>
+    </div>
+
+{% else %}
+    <!-- Hero for guests -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; margin:-32px; border-radius:16px; overflow:hidden; min-height:420px;">
+        <div style="padding:48px 40px; background:radial-gradient(ellipse at 30% 40%, rgba(56,189,248,0.1) 0%, transparent 65%), var(--surface); display:flex; flex-direction:column; justify-content:center; border-right:1px solid var(--border);">
+            <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:14px;">FAST University · Campus Portal</div>
+            <h1 style="font-size:2rem; line-height:1.25; margin-bottom:14px;">Lost something?<br><span style="color:var(--primary);">We'll help you find it.</span></h1>
+            <p style="font-size:14px; line-height:1.8; max-width:380px; margin-bottom:28px;">FAST's official lost & found system — post reports, browse items, and submit claims all in one place.</p>
+            <div style="display:flex; gap:10px;">
+                <a class="btn" href="{% url 'login' %}" style="padding:12px 24px; font-size:14px;">Sign In</a>
+                <a class="btn btn-secondary" href="{% url 'register' %}" style="padding:12px 24px; font-size:14px;">Create Account</a>
+            </div>
+        </div>
+
+        <div style="padding:48px 40px; background:var(--surface2); display:flex; flex-direction:column; justify-content:center; gap:20px;">
+            <div style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">What you can do</div>
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+                <div style="width:40px;height:40px;border-radius:10px;background:var(--primary-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📋</div>
+                <div>
+                    <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;">Post Lost & Found Items</div>
+                    <div style="font-size:12px;color:var(--muted);line-height:1.6;">Report your lost item or let someone know you found something on campus.</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+                <div style="width:40px;height:40px;border-radius:10px;background:var(--primary-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔍</div>
+                <div>
+                    <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;">Browse All Reports</div>
+                    <div style="font-size:12px;color:var(--muted);line-height:1.6;">Search through lost and found items posted by other FAST students.</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+                <div style="width:40px;height:40px;border-radius:10px;background:var(--primary-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✅</div>
+                <div>
+                    <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;">Submit Ownership Claims</div>
+                    <div style="font-size:12px;color:var(--muted);line-height:1.6;">Prove an item is yours and get it returned directly through the portal.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
 {% endblock %}
