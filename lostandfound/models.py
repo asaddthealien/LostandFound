@@ -3,13 +3,15 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+import cloudinary
+import cloudinary.models
 
 # Create your models here.
 class Item(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=100)
     location = models.CharField(max_length=50)
-    image = models.ImageField(upload_to="media/", blank=True, null=True)
+    image = models.CharField(max_length=500, blank=True, null=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name="%(class)s")
 
     class Meta:
@@ -52,7 +54,7 @@ class Claim(models.Model):
         (STATUS_REJECTED, "Rejected"),
     ]
     proof = models.TextField(max_length=100)
-    image = models.ImageField(upload_to="media", blank=True, null=True)
+    image = models.CharField(max_length=500, blank=True, null=True)
     requestby = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="claimrequests")
     found_item = models.ForeignKey(FoundItem, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)

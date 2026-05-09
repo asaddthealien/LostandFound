@@ -163,8 +163,18 @@ def itempost(request):
 
         itemobj.name = request.POST.get('name')
         itemobj.location = request.POST.get('location')
-        itemobj.image = request.FILES.get('image')
 
+        # Upload image directly to Cloudinary
+        image_file = request.FILES.get('image')
+        if image_file:
+            try:
+                import cloudinary.uploader
+                upload_result = cloudinary.uploader.upload(image_file)
+                itemobj.image = upload_result['secure_url']
+            except Exception as e:
+                print(f"Cloudinary upload error: {e}")
+                itemobj.image = None
+        
         categoryobj, _ = Category.objects.get_or_create(name=request.POST.get('category'))
         categoryobj.save()
 
@@ -180,10 +190,23 @@ def itempost(request):
             return redirect('matches', lost_id=itemobj.id)
 
         # If found item posted → run OCR to check if it's an ID card
-        if request.POST.get('status').lower() == 'found' and itemobj.image:
+        if request.POST.get('status').lower() == 'found' and image_file:
             try:
-                img_path = itemobj.image.path
-                roll_number = extract_roll_number(img_path)
+                from PIL import Image as PILImage, ImageEnhance, ImageFilter
+                import io
+                image_file.seek(0)
+                img = PILImage.open(image_file)
+                w, h = img.size
+                img = img.resize((w*3, h*3), PILImage.LANCZOS)
+                img = img.convert('L')
+                img = ImageEnhance.Contrast(img).enhance(2.5)
+                img = img.filter(ImageFilter.SHARPEN)
+                roll_number = None
+                import pytesseract, re
+                text = pytesseract.image_to_string(img, config='--psm 6 --oem 3')
+                match = re.search(r'\b\d{2}[kK]-\d{4}\b', text)
+                if match:
+                    roll_number = match.group(0).upper()
                 if roll_number:
                     student_email = notify_id_card_owner(roll_number, itemobj.name, itemobj.location)
                     if student_email:
@@ -193,7 +216,7 @@ def itempost(request):
                 else:
                     messages.info(request, "Item posted. No student ID card detected in the image.")
             except Exception as e:
-                messages.info(request, f"Item posted successfully.")
+                messages.info(request, "Item posted successfully.")
 
         return HttpResponseRedirect(reverse('listitems', args=(itemobj.status,)))
 

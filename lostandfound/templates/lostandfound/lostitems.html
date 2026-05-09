@@ -18,7 +18,7 @@
         <li class="item-card" style="display:grid; grid-template-columns:{% if item.image %}180px 1fr{% else %}1fr{% endif %}; gap:20px; align-items:start;">
 
             {% if item.image %}
-                <img class="media-img" src="{{ item.image.url }}" alt="{{ item.name }}" style="width:100%; height:160px; object-fit:cover; border-radius:10px;">
+                <img class="media-img" src="{{ item.image }}" alt="{{ item.name }}" style="width:100%; height:160px; object-fit:cover; border-radius:10px;">
             {% endif %}
 
             <div>

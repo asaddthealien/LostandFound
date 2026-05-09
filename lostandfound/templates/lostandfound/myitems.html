@@ -19,7 +19,7 @@
     {% for item in lost_items %}
         <li class="item-card" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
             {% if item.image %}
-                <img src="{{ item.image.url }}" style="width:80px; height:80px; object-fit:cover; border-radius:10px; border:1px solid var(--border); flex-shrink:0;">
+                <img src="{{ item.image }}" style="width:80px; height:80px; object-fit:cover; border-radius:10px; border:1px solid var(--border); flex-shrink:0;">
             {% else %}
                 <div style="width:80px; height:80px; border-radius:10px; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0;">📦</div>
             {% endif %}

@@ -33,14 +33,15 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'lostandfound',
+    'cloudinary',
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'cloudinary',
-    'cloudinary_storage'
+    'django.contrib.staticfiles'
+    
 ]
 
 MIDDLEWARE = [
@@ -148,11 +149,16 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+CLOUDINARY_URL = 'cloudinary://381279472941974:o6xbPuyrg7CnOaIYgDSiAdQ4Els@djgzejoos'
 
 # Cloudinary config
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
+
+import cloudinary
+cloudinary.config(
+    cloud_name='djqzejoos',
+    api_key='381279472941974',
+    api_secret='o6xbPuyrg7CnOaIYgDSiAdQ4Els'
+)
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
