@@ -34,8 +34,8 @@
                 {% endif %}
                 <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px;">
                     <span style="font-size:12px; color:var(--muted);">📍 {{ item.location }}</span>
-                    {% if item.posted_by %}
-                        <span style="font-size:12px; color:var(--muted);">👤 {{ item.posted_by.username }}</span>
+                    {% if item.postedby %}
+                        <span style="font-size:12px; color:var(--muted);">👤 {{ item.postedby.username }}</span>
                     {% endif %}
                 </div>
                 <a class="btn" href="{% url 'claim' item.id %}" style="padding:8px 18px; font-size:13px;">Claim This Item</a>

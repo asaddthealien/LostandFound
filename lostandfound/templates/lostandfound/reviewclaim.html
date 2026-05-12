@@ -38,7 +38,7 @@
 
             {% if claim.image %}
                 <div style="font-size:12px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Supporting Image</div>
-                <img class="media-img" src="{{ claim.image.url }}" alt="Claim image" style="width:100%; border-radius:10px; max-height:200px; object-fit:cover;">
+                <img class="media-img" src="{{ claim.image }}" alt="Claim image" style="width:100%; border-radius:10px; max-height:200px; object-fit:cover;">
             {% else %}
                 <div style="font-size:13px; color:var(--muted); font-style:italic;">No supporting image provided.</div>
             {% endif %}
@@ -67,7 +67,7 @@
 
                 {% if claim.found_item.image %}
                     <div style="font-size:12px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Item Image</div>
-                    <img class="media-img" src="{{ claim.found_item.image.url }}" alt="Found item" style="width:100%; border-radius:10px; max-height:200px; object-fit:cover;">
+                    <img class="media-img" src="{{ claim.found_item.image }}" alt="Found item" style="width:100%; border-radius:10px; max-height:200px; object-fit:cover;">
                 {% endif %}
             {% else %}
                 <p style="color:var(--muted); font-size:13px;">The found item post is no longer available.</p>

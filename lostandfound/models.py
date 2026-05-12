@@ -60,6 +60,19 @@ class Claim(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
 
 
+class Handover(models.Model):
+    """Track item handover location, time, and exchange code"""
+    claim = models.OneToOneField(Claim, on_delete=models.CASCADE, related_name="handover")
+    location = models.CharField(max_length=100)
+    scheduled_time = models.DateTimeField()
+    exchange_code = models.CharField(max_length=10, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    completed = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"Handover for {self.claim.id} - {self.exchange_code}"
+
+
 class Notification(models.Model):
     title = models.CharField(max_length=100, default="Claim Request")
     message = models.TextField(default="")

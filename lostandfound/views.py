@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models import Item, LostItem, FoundItem, User, Category, Claim, Notification
+from .models import Item, LostItem, FoundItem, User, Category, Claim, Notification, Handover
 from django.contrib.auth import authenticate, login, logout
 from .forms import Userform
 from django.contrib import messages
@@ -14,12 +14,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import pytesseract
 import re
+import string
+import random
+import shutil
 from PIL import Image
 
-# Tesseract path
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+_tesseract_cmd = shutil.which("tesseract")
+if _tesseract_cmd:
+    pytesseract.pytesseract.tesseract_cmd = _tesseract_cmd
 
-# ── OCR: Extract roll number from ID card image ──
 def extract_roll_number(image_path):
     try:
         from PIL import ImageEnhance, ImageFilter
@@ -38,9 +41,7 @@ def extract_roll_number(image_path):
         print(f"OCR ERROR: {e}")
     return None
 
-# ── Email: Notify student when their ID card is found ──
 def notify_id_card_owner(roll_number, item_name, location):
-    # Construct NU email from roll number: 24k-0606 → k240606@nu.edu.pk
     parts = roll_number.lower().split('-')  # ['24k', '0606']
     if len(parts) == 2:
         year_letter = parts[0]   # '24k'
@@ -71,9 +72,63 @@ Please log in to https://lostandfound.example.com and submit a claim to recover 
             pass
     return None
 
-# ── AI Matching Algorithm ──
-# Uses TF-IDF vectorization + cosine similarity (real NLP technique)
-# Combined with category match and location bonus for best results
+def generate_exchange_code():
+    characters = string.ascii_uppercase + string.digits
+    code = ''.join(random.choice(characters) for _ in range(8))
+    return code
+
+def send_handover_email(claim, handover):
+    claimer = claim.requestby
+    owner = claim.found_item.postedby
+    item_name = claim.found_item.name
+    
+    subject = f"Item Handover Scheduled: {item_name}"
+    message = f"""Dear {claimer.name},
+
+Your claim for '{item_name}' has been approved! Here are the handover details:
+
+📍 Location: {handover.location}
+⏰ Date & Time: {handover.scheduled_time.strftime('%B %d, %Y at %I:%M %p')}
+🔐 Exchange Code: {handover.exchange_code}
+
+Please meet the item owner at the specified location and time. Share the exchange code to verify the handover.
+
+— FAST Lost & Found System"""
+    
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=django_settings.EMAIL_HOST_USER,
+            recipient_list=[claimer.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Error sending claimer email: {e}")
+    
+    owner_message = f"""Dear {owner.name},
+
+The claimant '{claimer.name}' has been approved to collect their item '{item_name}'. Here are the handover details:
+
+📍 Location: {handover.location}
+⏰ Date & Time: {handover.scheduled_time.strftime('%B %d, %Y at %I:%M %p')}
+🔐 Exchange Code: {handover.exchange_code}
+
+Please meet the claimant at the specified location and time. Ask them to provide the exchange code to verify their identity.
+
+— FAST Lost & Found System"""
+    
+    try:
+        send_mail(
+            subject=subject,
+            message=owner_message,
+            from_email=django_settings.EMAIL_HOST_USER,
+            recipient_list=[owner.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Error sending owner email: {e}")
+
 def get_ai_matches(lost_item, top_n=5):
     found_items = list(FoundItem.objects.select_related('category', 'postedby').all())
 
@@ -87,7 +142,6 @@ def get_ai_matches(lost_item, top_n=5):
     lost_text = item_text(lost_item)
     found_texts = [item_text(fi) for fi in found_items]
 
-    # TF-IDF vectorization + cosine similarity
     all_texts = [lost_text] + found_texts
     vectorizer = TfidfVectorizer(stop_words='english')
     try:
@@ -98,19 +152,15 @@ def get_ai_matches(lost_item, top_n=5):
 
     scored = []
     for i, fi in enumerate(found_items):
-        # Base score from TF-IDF cosine similarity (0 to 70 points)
         score = int(similarities[i] * 70)
 
-        # Category match bonus (25 points)
         if fi.category_id == lost_item.category_id:
             score += 25
 
-        # Location match bonus (5 points)
         if lost_item.location and fi.location:
             if lost_item.location.lower() in fi.location.lower() or fi.location.lower() in lost_item.location.lower():
                 score += 5
 
-        # Cap at 100
         score = min(score, 100)
 
         if score > 0:
@@ -120,7 +170,6 @@ def get_ai_matches(lost_item, top_n=5):
     return scored[:top_n]
 
 
-# Create your views here.
 def index(request):
     stats = {
         'total_lost': LostItem.objects.count(),
@@ -164,7 +213,6 @@ def itempost(request):
         itemobj.name = request.POST.get('name')
         itemobj.location = request.POST.get('location')
 
-        # Upload image directly to Cloudinary
         image_file = request.FILES.get('image')
         if image_file:
             try:
@@ -185,11 +233,9 @@ def itempost(request):
         itemobj.postedby = request.user
         itemobj.save()
 
-        # If lost item posted → run AI matching
         if request.POST.get('status').lower() == 'lost':
             return redirect('matches', lost_id=itemobj.id)
 
-        # If found item posted → run OCR to check if it's an ID card
         if request.POST.get('status').lower() == 'found' and image_file:
             try:
                 from PIL import Image as PILImage, ImageEnhance, ImageFilter
@@ -225,7 +271,6 @@ def itempost(request):
         return render(request, "lostandfound/itempost.html", {'categories': categories})
 
 
-# ── AI Matches Page ──
 @login_required
 def matches(request, lost_id):
     lost_item = get_object_or_404(LostItem, id=lost_id)
@@ -284,8 +329,18 @@ def claim(request, item_id):
         claimobj.requestby = request.user
         claimobj.proof = request.POST.get("proof")
         claimobj.status = Claim.STATUS_PENDING
-        if request.FILES.get('image'):
-            claimobj.image = request.FILES.get('image')
+        
+        # Upload claim image to Cloudinary
+        image_file = request.FILES.get('image')
+        if image_file:
+            try:
+                import cloudinary.uploader
+                upload_result = cloudinary.uploader.upload(image_file)
+                claimobj.image = upload_result['secure_url']
+            except Exception as e:
+                print(f"Cloudinary upload error: {e}")
+                claimobj.image = None
+        
         claimobj.save()
 
         notificationobj = Notification()
@@ -325,39 +380,99 @@ def reviewclaim(request, notification_id):
             messages.error(request, "Invalid review action.")
             return redirect('review', notification_id=notification.id)
 
-        with transaction.atomic():
-            if decision == "accept":
-                claimobj.status = Claim.STATUS_ACCEPTED
-                claimant_message = f"Your claim for item '{item_name}' has been verified and accepted."
-                if claimobj.found_item:
-                    founditemobj = claimobj.found_item
-                    claimobj.found_item = None
-                    claimobj.save(update_fields=["status", "found_item"])
-                    founditemobj.delete()
-            else:
+        if decision == "accept":
+            return redirect('handover_details', claim_id=claimobj.id)
+        else:
+            with transaction.atomic():
                 claimobj.status = Claim.STATUS_REJECTED
                 claimant_message = f"Your claim for item '{item_name}' was reviewed and rejected."
-
-            if decision == "reject":
                 claimobj.save(update_fields=["status"])
-            notification.is_read = True
-            notification.save(update_fields=["is_read"])
+                notification.is_read = True
+                notification.save(update_fields=["is_read"])
 
-            Notification.objects.create(
-                title="Claim Review Update",
-                message=claimant_message,
-                claimreq=claimobj,
-                receiver=claimobj.requestby,
-                sender=request.user,
-            )
+                Notification.objects.create(
+                    title="Claim Review Update",
+                    message=claimant_message,
+                    claimreq=claimobj,
+                    receiver=claimobj.requestby,
+                    sender=request.user,
+                )
 
-        messages.success(request, "Claim review submitted successfully.")
-        return redirect('notifications')
+            messages.success(request, "Claim rejected.")
+            return redirect('notifications')
 
     return render(request, "lostandfound/reviewclaim.html", {
         'notification': notification,
         'claim': claimobj,
     })
+
+
+@login_required
+def handover_details(request, claim_id):
+    claimobj = get_object_or_404(Claim, id=claim_id)
+    
+    if claimobj.found_item.postedby != request.user:
+        messages.error(request, "You are not authorized to approve this claim.")
+        return redirect('notifications')
+    
+    if claimobj.status != Claim.STATUS_PENDING:
+        messages.error(request, "This claim has already been reviewed.")
+        return redirect('notifications')
+
+    if request.method == "POST":
+        location = request.POST.get("location")
+        scheduled_time_str = request.POST.get("scheduled_time")
+        
+        if not location or not scheduled_time_str:
+            messages.error(request, "Location and time are required.")
+            return redirect('handover_details', claim_id=claim_id)
+        
+        try:
+            from django.utils.dateparse import parse_datetime
+            scheduled_time = parse_datetime(scheduled_time_str)
+            if not scheduled_time:
+                messages.error(request, "Invalid date/time format.")
+                return redirect('handover_details', claim_id=claim_id)
+            
+            with transaction.atomic():
+                exchange_code = generate_exchange_code()
+                
+                handover = Handover.objects.create(
+                    claim=claimobj,
+                    location=location,
+                    scheduled_time=scheduled_time,
+                    exchange_code=exchange_code,
+                )
+                
+                claimobj.status = Claim.STATUS_ACCEPTED
+                claimobj.save(update_fields=["status"])
+                
+                send_handover_email(claimobj, handover)
+                
+                notification = Notification.objects.get(claimreq=claimobj, receiver=request.user)
+                notification.is_read = True
+                notification.save(update_fields=["is_read"])
+                
+                Notification.objects.create(
+                    title="Claim Approved - Handover Scheduled",
+                    message=f"Your claim for '{claimobj.found_item.name}' has been approved. Handover scheduled for {scheduled_time.strftime('%B %d, %Y at %I:%M %p')} at {location}. Exchange code: {exchange_code}",
+                    claimreq=claimobj,
+                    receiver=claimobj.requestby,
+                    sender=request.user,
+                )
+            
+            messages.success(request, "Handover details saved and emails sent to both parties.")
+            return redirect('notifications')
+        
+        except Exception as e:
+            print(f"Error creating handover: {e}")
+            messages.error(request, "An error occurred while saving handover details.")
+            return redirect('handover_details', claim_id=claim_id)
+    
+    return render(request, "lostandfound/handover_details.html", {
+        'claim': claimobj,
+    })
+
 
 
 @login_required
@@ -382,8 +497,16 @@ def edititem(request, status, item_id):
         itemobj.location = request.POST.get('location')
         if request.POST.get('description'):
             itemobj.description = request.POST.get('description')
-        if request.FILES.get('image'):
-            itemobj.image = request.FILES.get('image')
+        
+        image_file = request.FILES.get('image')
+        if image_file:
+            try:
+                import cloudinary.uploader
+                upload_result = cloudinary.uploader.upload(image_file)
+                itemobj.image = upload_result['secure_url']
+            except Exception as e:
+                print(f"Cloudinary upload error: {e}")
+                pass
 
         categoryobj, _ = Category.objects.get_or_create(name=request.POST.get('category'))
         itemobj.category = categoryobj

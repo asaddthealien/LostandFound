@@ -1,0 +1,90 @@
+{% extends "lostandfound/layout.html" %}
+
+{% block title %}Schedule Handover — FAST Lost & Found{% endblock %}
+
+{% block body %}
+
+<div style="margin-bottom:24px;">
+    <div style="font-size:11px; color:var(--success); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Approved Claim</div>
+    <h2 style="margin:0 0 6px;">Schedule Item Handover</h2>
+    <p style="font-size:13px;">Enter the location and time for the item handover. Both parties will receive email notifications with an exchange code.</p>
+</div>
+
+{% if claim %}
+
+    <div class="split" style="margin-bottom:20px;">
+        <!-- Claim Details -->
+        <div class="item-card">
+            <div style="font-size:11px; color:var(--primary); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Claimant</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                    <span style="font-size:12px; color:var(--muted);">Name</span>
+                    <span style="font-size:13px; color:var(--text); font-weight:500;">{{ claim.requestby.name }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                    <span style="font-size:12px; color:var(--muted);">Username</span>
+                    <span style="font-size:13px; color:var(--text);">{{ claim.requestby.username }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                    <span style="font-size:12px; color:var(--muted);">Email</span>
+                    <span style="font-size:13px; color:var(--text);">{{ claim.requestby.email }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Found Item -->
+        <div class="item-card">
+            <div style="font-size:11px; color:var(--success); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Found Item</div>
+            {% if claim.found_item %}
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                        <span style="font-size:12px; color:var(--muted);">Item Name</span>
+                        <span style="font-size:13px; color:var(--text); font-weight:500;">{{ claim.found_item.name }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                        <span style="font-size:12px; color:var(--muted);">Location Found</span>
+                        <span style="font-size:13px; color:var(--text);">{{ claim.found_item.location }}</span>
+                    </div>
+                </div>
+                {% if claim.found_item.image %}
+                    <div style="font-size:12px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Item Image</div>
+                    <img class="media-img" src="{{ claim.found_item.image }}" alt="Found item" style="width:100%; border-radius:10px; max-height:150px; object-fit:cover;">
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="item-card" style="background:var(--primary-dim); border-color:var(--border2);">
+        <div style="font-size:13px; font-weight:500; color:var(--text); margin-bottom:14px;">Handover Details</div>
+        
+        <form method="post" action="{% url 'handover_details' claim.id %}">
+            {% csrf_token %}
+            
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.05em;">Location</label>
+                <input type="text" name="location" placeholder="e.g., Library Entrance, SEECS Courtyard" required style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; background:var(--surface); color:var(--text);">
+                <p style="font-size:12px; color:var(--muted); margin-top:4px;">Specify a clear, easily recognizable location on campus.</p>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.05em;">Date & Time</label>
+                <input type="datetime-local" name="scheduled_time" required style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; background:var(--surface); color:var(--text);">
+                <p style="font-size:12px; color:var(--muted); margin-top:4px;">Schedule a time convenient for both parties.</p>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button type="submit" style="background:linear-gradient(135deg,#059669,#34d399); padding:11px 26px; border:none; border-radius:6px; color:white; font-weight:500; font-size:13px; cursor:pointer;">✓ Schedule Handover</button>
+                <a href="{% url 'notifications' %}" style="padding:11px 26px; border:1px solid var(--border); border-radius:6px; color:var(--text); background:var(--surface); font-weight:500; font-size:13px; cursor:pointer; text-decoration:none;">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+{% else %}
+    <div style="text-align:center; padding:48px 20px; color:var(--muted);">
+        <div style="font-size:40px; margin-bottom:12px;">❓</div>
+        <div style="font-size:15px; color:var(--text); margin-bottom:6px;">Claim not found</div>
+        <p style="font-size:13px;">This claim may have been removed or doesn't exist.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

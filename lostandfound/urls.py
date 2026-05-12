@@ -8,6 +8,7 @@ urlpatterns = [
     path("claim/<int:item_id>", views.claim, name="claim"),
     path("notifications", views.notificationsview, name="notifications"),
     path("review/<int:notification_id>", views.reviewclaim, name="review"),
+    path("handover/<int:claim_id>", views.handover_details, name="handover_details"),
     path("login", views.loginview, name="login"),
     path("register", views.registerview, name="register"),
     path("logout", views.logoutview, name="logout"),
